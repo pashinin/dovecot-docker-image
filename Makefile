@@ -12,7 +12,7 @@
 #	make release-all
 
 
-IMAGE_NAME := instrumentisto/dovecot
+IMAGE_NAME := pashinin/dovecot
 ALL_IMAGES := \
 	debian:2.2.27.0,2.2.27,2.2,2,latest \
 	alpine:2.2.27.0-alpine,2.2.27-alpine,2.2-alpine,2-alpine,alpine
