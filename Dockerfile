@@ -114,7 +114,7 @@ RUN apt-get update \
  # Pregenerate Diffie-Hellman parameters (heavy operation)
  # to not consume time at container start
  && mkdir -p /var/lib/dovecot \
- && /usr/libexec/dovecot/ssl-params \
+ # && /usr/libexec/dovecot/ssl-params \
 
  # Cleanup unnecessary stuff
  && apt-get purge -y --auto-remove \
