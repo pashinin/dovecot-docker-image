@@ -90,11 +90,11 @@ RUN apt-get update \
            -e 's,#debug_log_path =,debug_log_path = /dev/stdout,' \
         /etc/dovecot/conf.d/10-logging.conf \
  # Set default passdb to passwd and create appropriate 'users' file
- && sed -i -e 's,!include auth-system.conf.ext,!include auth-passwdfile.conf.ext,' \
-           -e 's,#!include auth-passwdfile.conf.ext,#!include auth-system.conf.ext,' \
-        /etc/dovecot/conf.d/10-auth.conf \
- && install -m 640 -o dovecot -g mail /dev/null \
-            /etc/dovecot/users \
+ # && sed -i -e 's,!include auth-system.conf.ext,!include auth-passwdfile.conf.ext,' \
+ #           -e 's,#!include auth-passwdfile.conf.ext,#!include auth-system.conf.ext,' \
+ #        /etc/dovecot/conf.d/10-auth.conf \
+ # && install -m 640 -o dovecot -g mail /dev/null \
+ #            /etc/dovecot/users \
  # Change TLS/SSL dirs in default config and generate default certs
  && sed -i -e 's,^ssl_cert =.*,ssl_cert = </etc/ssl/dovecot/server.pem,' \
            -e 's,^ssl_key =.*,ssl_key = </etc/ssl/dovecot/server.key,' \
