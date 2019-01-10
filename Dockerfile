@@ -5,7 +5,7 @@ MAINTAINER Sergey Pashinin <sergey@pashinin.com>
 
 RUN apt-get update \
  && apt-get upgrade -y \
- && apt-get install -y dovecot-imapd dovecot-pgsql dovecot-sieve dovecot-lmtp dovecot-ldap \
+ && apt-get install -y dovecot-imapd dovecot-pgsql dovecot-sieve dovecot-lmtpd dovecot-ldap \
 
  # Set Dovecot logging to STDOUT/STDERR
  && sed -i -e 's,#log_path = syslog,log_path = /dev/stderr,' \
