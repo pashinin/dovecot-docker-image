@@ -38,13 +38,17 @@ RUN apt-get update \
         krb5-multidev \
     " \
  && apt-get install -y --no-install-recommends --no-install-suggests \
-            $buildDeps \
+            $buildDeps
 
- # Download and prepare Dovecot sources
- && curl -fL -o /tmp/dovecot.tar.gz \
-         https://www.dovecot.org/releases/2.3/dovecot-2.3.3.tar.gz \
+# Download and prepare Dovecot sources
+RUN curl -fL -o /tmp/dovecot.tar.gz \
+         https://www.dovecot.org/releases/2.3/dovecot-2.3.4.tar.gz \
  && tar -xzf /tmp/dovecot.tar.gz -C /tmp/ \
- && cd /tmp/dovecot-* \
+ && curl -fL -o /tmp/sieve.tar.gz \
+         https://dovecot.org/releases/sieve/dovecot-sieve-1.1.8.tar.gz \
+ && tar -xzf /tmp/sieve.tar.gz -C /tmp/
+
+RUN cd /tmp/dovecot-2* \
 
  # Build Dovecot from sources
  && KRB5CONFIG=krb5-config.mit \
@@ -86,11 +90,8 @@ RUN apt-get update \
        /etc/dovecot/ \
 
  # Download and prepare Sieve sources
- && curl -fL -o /tmp/sieve.tar.gz \
-         https://dovecot.org/releases/sieve/dovecot-sieve-1.1.8.tar.gz \
- && tar -xzf /tmp/sieve.tar.gz -C /tmp/ \
  && cd /tmp/dovecot-sieve* \
- && ./configure --with-dovecot=../dovecot-2.3.3 \
+ && ./configure --with-dovecot=../dovecot-2.3.4 \
  && make \
  && make install \
 
@@ -126,7 +127,18 @@ RUN apt-get update \
  && mkdir -p /var/lib/dovecot \
  # && /usr/libexec/dovecot/ssl-params \
 
- # Cleanup unnecessary stuff
+  # Cleanup unnecessary stuff
+ && toolDeps=" \
+        curl make gcc g++ libc-dev \
+    " \
+ && buildDeps=" \
+        libssl-dev \
+        libbz2-dev liblz4-dev liblzma-dev zlib1g-dev \
+        libcap-dev \
+        libpq-dev libmariadbclient-dev-compat libsqlite3-dev \
+        libldap2-dev \
+        krb5-multidev \
+    " \
  && apt-get purge -y --auto-remove \
                   -o APT::AutoRemove::RecommendsImportant=false \
             $toolDeps $buildDeps \
