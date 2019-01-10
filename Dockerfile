@@ -3,9 +3,8 @@ FROM debian:buster-slim
 
 MAINTAINER Sergey Pashinin <sergey@pashinin.com>
 
-RUN apt-get update \
- && apt-get upgrade -y \
- && apt-get install -y dovecot-imapd dovecot-pgsql dovecot-sieve dovecot-lmtpd dovecot-ldap \
+RUN apt update && apt install -y \
+ && dovecot-imapd dovecot-pgsql dovecot-sieve dovecot-lmtpd dovecot-ldap \
  && rm -rf /var/lib/apt/lists/* \
            /tmp/*
 
