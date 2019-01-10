@@ -84,7 +84,17 @@ RUN apt-get update \
        /tmp/doc/example-config/conf.d \
        /tmp/doc/dovecot-openssl.cnf \
        /etc/dovecot/ \
- # Set logging to STDOUT/STDERR
+
+ # Download and prepare Sieve sources
+ && curl -fL -o /tmp/sieve.tar.gz \
+         https://dovecot.org/releases/sieve/dovecot-sieve-1.1.8.tar.gz \
+ && tar -xzf /tmp/sieve.tar.gz -C /tmp/ \
+ && cd /tmp/dovecot-sieve* \
+ && ./configure --with-dovecot=../dovecot-2.3.3 \
+ && make \
+ && make install \
+
+ # Set Dovecot logging to STDOUT/STDERR
  && sed -i -e 's,#log_path = syslog,log_path = /dev/stderr,' \
            -e 's,#info_log_path =,info_log_path = /dev/stdout,' \
            -e 's,#debug_log_path =,debug_log_path = /dev/stdout,' \
