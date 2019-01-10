@@ -1,99 +1,11 @@
 # https://hub.docker.com/_/debian
-FROM debian:stretch-slim
+FROM debian:buster-slim
 
-MAINTAINER Instrumentisto Team <developer@instrumentisto.com>
+MAINTAINER Sergey Pashinin <sergey@pashinin.com>
 
-
-# Build and install Dovecot
-# https://anonscm.debian.org/git/collab-maint/dovecot.git/tree/debian/rules?id=fc8f5ddc49b39ee56eb57a082ee34dbd58a30c1d
 RUN apt-get update \
  && apt-get upgrade -y \
- && apt-get install -y --no-install-recommends --no-install-suggests \
-            ca-certificates \
- && update-ca-certificates \
-
- # Install Dovecot dependencies
- && apt-get install -y --no-install-recommends --no-install-suggests \
-            libssl1.1 \
-            libbz2-1.0 liblz4-1 liblzma5 zlib1g \
-            libcap2 \
-            libpq5 libmariadbclient18 libsqlite3-0 \
-            libldap-2.4 \
-            libgssapi-krb5-2 libk5crypto3 libkrb5-3 \
-
- # Install tools for building
- && toolDeps=" \
-        curl make gcc g++ libc-dev \
-    " \
- && apt-get install -y --no-install-recommends --no-install-suggests \
-            $toolDeps \
-
- # Install Dovecot build dependencies
- && buildDeps=" \
-        libssl-dev \
-        libbz2-dev liblz4-dev liblzma-dev zlib1g-dev \
-        libcap-dev \
-        libpq-dev libmariadbclient-dev-compat libsqlite3-dev \
-        libldap2-dev \
-        krb5-multidev \
-    " \
- && apt-get install -y --no-install-recommends --no-install-suggests \
-            $buildDeps
-
-# Download and prepare Dovecot sources
-RUN curl -fL -o /tmp/dovecot.tar.gz \
-         https://www.dovecot.org/releases/2.3/dovecot-2.3.4.tar.gz \
- && tar -xzf /tmp/dovecot.tar.gz -C /tmp/ \
- && curl -fL -o /tmp/sieve.tar.gz \
-         https://dovecot.org/releases/sieve/dovecot-sieve-1.1.8.tar.gz \
- && tar -xzf /tmp/sieve.tar.gz -C /tmp/
-
-RUN cd /tmp/dovecot-2* \
-
- # Build Dovecot from sources
- && KRB5CONFIG=krb5-config.mit \
-    ./configure \
-        --prefix=/usr \
-        --with-ssl=openssl --with-ssldir=/etc/ssl/dovecot \
-        --with-lz4 --with-lzma \
-        --with-libcap \
-        --with-sql=plugin --with-pgsql --with-mysql --with-sqlite \
-        --with-ldap=plugin \
-        --with-gssapi=plugin \
-        --with-rundir=/run/dovecot \
-        --localstatedir=/var \
-        --sysconfdir=/etc \
-        # No documentation included to keep image size smaller
-        --mandir=/tmp/man \
-        --docdir=/tmp/doc \
-        --infodir=/tmp/info \
- && make \
-
- # Create Dovecot user and groups
- && addgroup --system --gid 91 dovecot \
- && adduser --system --uid 90 --disabled-password --shell /sbin/nologin \
-            --no-create-home --home /dev/null \
-            --ingroup dovecot --gecos dovecot \
-            dovecot \
- && addgroup --system --gid 93 dovenull \
- && adduser --system --uid 92 --disabled-password --shell /sbin/nologin \
-            --no-create-home --home /dev/null \
-            --ingroup dovenull --gecos dovenull \
-            dovenull \
-
- # Install and configure Dovecot
- && make install \
- && rm -rf /etc/dovecot/* \
- && mv /tmp/doc/example-config/dovecot* \
-       /tmp/doc/example-config/conf.d \
-       /tmp/doc/dovecot-openssl.cnf \
-       /etc/dovecot/ \
-
- # Download and prepare Sieve sources
- && cd /tmp/dovecot-sieve* \
- && ./configure --with-dovecot=../dovecot-2.3.4 \
- && make \
- && make install \
+ && apt-get install -y dovecot-imapd dovecot-pgsql dovecot-sieve dovecot-lmtp dovecot-ldap \
 
  # Set Dovecot logging to STDOUT/STDERR
  && sed -i -e 's,#log_path = syslog,log_path = /dev/stderr,' \
@@ -127,21 +39,6 @@ RUN cd /tmp/dovecot-2* \
  && mkdir -p /var/lib/dovecot \
  # && /usr/libexec/dovecot/ssl-params \
 
-  # Cleanup unnecessary stuff
- && toolDeps=" \
-        curl make gcc g++ libc-dev \
-    " \
- && buildDeps=" \
-        libssl-dev \
-        libbz2-dev liblz4-dev liblzma-dev zlib1g-dev \
-        libcap-dev \
-        libpq-dev libmariadbclient-dev-compat libsqlite3-dev \
-        libldap2-dev \
-        krb5-multidev \
-    " \
- && apt-get purge -y --auto-remove \
-                  -o APT::AutoRemove::RecommendsImportant=false \
-            $toolDeps $buildDeps \
  && rm -rf /var/lib/apt/lists/* \
            /tmp/*
 
