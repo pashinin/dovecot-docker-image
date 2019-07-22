@@ -9,6 +9,9 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/* \
            /tmp/*
 
+RUN   mkdir -p /etc/dovecot/sieve
+RUN   chown dovecot:dovecot /etc/dovecot/sieve
+USER  dovecot
 
 EXPOSE 110 143 993 995
 
